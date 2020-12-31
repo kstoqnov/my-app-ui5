@@ -1,31 +1,78 @@
+import { Suspense, lazy } from 'react';
+import { Router, Route, Switch } from 'react-router-dom';
+import customHistory from './utils/history';
+
 import {
   FlexBox,
-  FlexBoxAlignItems,
-  FlexBoxDirection,
-  FlexBoxJustifyContent,
-  Link,
-  LinkDesign,
   ShellBar,
-  ThemeProvider
+  ThemeProvider,
+  Avatar,
+  ShellBarItem,
+  FlexBoxWrap
 } from '@ui5/webcomponents-react';
-import React from 'react';
-import './App.css';
+
+
+import { spacing } from '@ui5/webcomponents-react-base';
+import { LeftMainNav } from './Components/LeftMainNav';
+import { LoadingComponent } from './Components/LoadingComponent';
+
+import "@ui5/webcomponents-icons/dist/add.js";
+
+const HomePage = lazy(() => import('./pages/HomePage'));
+const AnalyticalPage = lazy(() => import('./pages/AnalyticalPage'));
+const ProgressPage = lazy(() => import('./pages/ProgressPage'));
+
 
 function App() {
+
+  const avatarImage = process.env.PUBLIC_URL + 'logo192.png';
+  const logoImage = process.env.PUBLIC_URL + 'logo512.png';
+
+  const handleLogoClick = () => {
+
+    customHistory.push('/');
+  };
+   
+
   return (
-    <ThemeProvider>
-      <ShellBar primaryTitle="UI5 Web Components for React Template" />
-      <FlexBox
-        style={{ width: '100%', height: '100vh' }}
-        direction={FlexBoxDirection.Column}
-        justifyContent={FlexBoxJustifyContent.Center}
-        alignItems={FlexBoxAlignItems.Center}
-      >
-        <Link href="https://sap.github.io/ui5-webcomponents-react/" target="_blank" design={LinkDesign.Emphasized}>
-          Getting Started with UI5 Web Component for React
-        </Link>
-      </FlexBox>
-    </ThemeProvider>
+    <Router history={customHistory}>
+
+      <Suspense fallback={<LoadingComponent active={true}/>}>
+
+          <ThemeProvider>
+
+            <ShellBar
+              logo={<img src={logoImage} alt='logo' />}
+              profile={<Avatar image={avatarImage} />}
+              primaryTitle="UI5 Web Components for React"
+              onLogoClick={handleLogoClick}
+            >
+
+              <ShellBarItem icon="add" text="Add" />
+
+            </ShellBar>
+
+            <FlexBox            
+              wrap={FlexBoxWrap.Wrap}
+              style={spacing.sapUiContentPadding}
+            >
+              <LeftMainNav/>
+              <Switch>
+
+                <Route exact path={'/'} component={ (props) => <HomePage {...props} /> }/>
+                <Route path={'/analytic'} component={ (props) => <AnalyticalPage {...props} /> } />
+                <Route path={'/progress'} component={ (props) => <ProgressPage {...props}/> } />
+
+              </Switch>            
+
+            </FlexBox>
+
+          </ThemeProvider>
+
+      </Suspense>
+
+    </Router>
+
   );
 }
 
